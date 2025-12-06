@@ -1,95 +1,201 @@
-# Predictive Deception: LLM-based Command Anticipation in SSH Honeypots
+Predictive Deception: LLM-based Command Anticipation in SSH Honeypots
 
-[cite_start]Questo repository ospita l'implementazione di riferimento per il framework di **Predictive Deception**, un'architettura di sicurezza offensiva che integra Large Language Models (LLM) e Retrieval-Augmented Generation (RAG) all'interno di honeypot SSH ad alta interazione[cite: 20, 22].
+Questo repository contiene l'implementazione ufficiale del framework Predictive Deception, un'architettura di sicurezza offensiva sviluppata nell'ambito del corso di Ingegneria Informatica dell'Università di Bologna.
 
-[cite_start]Il progetto supera il modello reattivo tradizionale (logging passivo), introducendo un agente difensivo proattivo in grado di anticipare i comandi dell'attaccante e manipolare l'ambiente in tempo reale [cite: 14-16].
+Il progetto introduce un cambio di paradigma nella gestione degli honeypot SSH: dal logging passivo (reattivo) all'anticipazione comportamentale (proattiva), sfruttando Large Language Models (LLM) e Retrieval-Augmented Generation (RAG).
 
----
+📑 Indice
 
-## 📋 Abstract e Obiettivi
+Abstract
 
-[cite_start]Gli honeypot SSH tradizionali (es. Cowrie) operano secondo un paradigma reattivo: registrano le azioni dell'attaccante solo *dopo* che queste sono state eseguite[cite: 14]. [cite_start]Sebbene efficace per la threat intelligence a posteriori, questo approccio limita le capacità di inganno (deception) in tempo reale[cite: 15].
+Architettura del Sistema
 
-Questo lavoro propone un cambio di paradigma: **l'anticipazione comportamentale**.
-[cite_start]Sfruttando la capacità predittiva di modelli LLM (CodeLlama, Gemini) potenziati da una memoria storica vettoriale (RAG su ChromaDB)[cite: 163, 220], il sistema:
-1.  [cite_start]**Analizza** lo stream di comandi della sessione corrente in tempo reale[cite: 159].
-2.  [cite_start]**Predice** la sequenza di azioni successive più probabili ($Top\text{-}k$)[cite: 171].
-3.  [cite_start]**Genera e inietta** nel filesystem artefatti ingannevoli (file, config, log) coerenti con l'attacco previsto, *prima* che l'attaccante li richieda[cite: 21].
+Componenti Core
 
----
+Struttura del Repository
 
-## 🏗️ Architettura del Sistema
+Setup e Installazione
 
-[cite_start]Il sistema è implementato in un ambiente virtualizzato gestito via **Vagrant** e configurato tramite **Ansible**. [cite_start]L'architettura si divide in tre moduli logici principali[cite: 156]:
+Workflow Operativo
 
-### 1. FakeShell (Interazione)
-[cite_start]Uno script Python che sostituisce la shell di default (`/bin/bash`)[cite: 548].
-* [cite_start]**Funzione:** Fornisce un prompt realistico (`user@hostname:/path$`) ed esegue i comandi reali tramite PTY, mantenendo l'interattività completa[cite: 552, 557].
-* [cite_start]**Logging:** Intercetta e serializza ogni keystroke e comando in un log strutturato JSON (`/var/log/fakeshell.json`), fungendo da input per il motore predittivo[cite: 559].
+Risultati Sperimentali
 
-### 2. Predictive Engine & RAG (Analisi)
-[cite_start]Il modulo predittivo basato su LLM[cite: 162].
-* [cite_start]**Input:** Riceve la *sliding window* degli ultimi $k$ comandi eseguiti[cite: 161].
-* [cite_start]**Retrieval (RAG):** Interroga un database vettoriale (**ChromaDB**) contenente sessioni di attacco reali (dataset Cowrie), recuperando pattern storici simili per ridurre le allucinazioni e aumentare la coerenza[cite: 218, 220].
-* [cite_start]**Output:** Produce una lista di comandi predetti ordinati per probabilità ($Top\text{-}k$)[cite: 171].
+Autori e Riferimenti
 
-### 3. Defender Runtime (Deception Attiva)
-[cite_start]Un demone Python che monitora i log della FakeShell e agisce sul filesystem[cite: 591].
-* [cite_start]**Generazione Proattiva:** Per ogni comando predetto, genera dinamicamente un artefatto "esca" (decoy) e una sua descrizione[cite: 596].
-* [cite_start]**Materializzazione:** Crea fisicamente i file nei percorsi previsti (es. `/etc/passwd`, `/var/log/auth.log`)[cite: 658].
-* [cite_start]**Branching & Pruning:** Quando l'attaccante esegue un comando, il sistema mantiene gli artefatti del ramo corretto ed elimina istantaneamente quelli generati per le predizioni errate, garantendo la coerenza temporale dell'ambiente[cite: 598, 682].
+🔬 Abstract
 
----
+Gli honeypot tradizionali (es. Cowrie) raccolgono intelligence registrando le azioni degli attaccanti post-factum. Questo approccio limita le capacità di inganno (deception) in tempo reale.
+Predictive Deception supera questo limite implementando un ciclo OODA (Observe-Orient-Decide-Act) automatizzato:
 
-## 🛠️ Requisiti Tecnici
+Observe: Intercetta lo stream di comandi in tempo reale.
 
-Il progetto richiede un ambiente Linux/Unix per l'orchestrazione.
+Orient: Recupera contesti storici simili da un database vettoriale (RAG).
 
-**Core Dependencies:**
-* **Python 3.10+**
-* [cite_start]**Vagrant & VirtualBox** (per l'ambiente honeypot isolato) [cite: 542]
-* [cite_start]**Ansible** (per il provisioning automatizzato) 
+Decide: Predice la sequenza di prossimi comandi ($Top\text{-}k$) tramite LLM.
 
-[cite_start]**Librerie Python (Backend & ML)[cite: 753]:**
-* [cite_start]`chromadb` - Database vettoriale per RAG.
-* [cite_start]`sentence-transformers` - Generazione embeddings (`all-MiniLM-L6-v2`).
-* [cite_start]`google-genai` - Interfaccia API per Gemini[cite: 627].
-* [cite_start]`requests` - Interfaccia per modelli locali via Ollama[cite: 271].
-* `scikit-learn`, `numpy`, `pandas` - Preprocessing e analisi dati.
+Act: Genera e materializza artefatti "esca" (file, log, config) nel filesystem prima che l'attaccante li richieda.
 
----
+🏗️ Architettura del Sistema
 
-## 📂 Struttura del Repository
+Il sistema opera all'interno di un ambiente virtualizzato (Vagrant) isolato, orchestrato via Ansible.
 
-[cite_start]L'organizzazione del codice segue una logica modulare per separare il provisioning infrastrutturale, il motore di inferenza e la gestione dei dati [cite: 717-760].
+Diagramma Logico
 
-```bash
+graph TD
+    A[Attacker SSH Session] -->|Input Command| B(FakeShell)
+    B -->|Log JSON| C{Defender Runtime}
+    C -->|Query| D[RAG Module]
+    D -->|Retrieval| E[(ChromaDB)]
+    D -->|Context + History| F[LLM Inference]
+    F -->|Prediction Top-k| C
+    C -->|Generate Artifacts| G[Filesystem Injection]
+    G -->|Interaction| A
+    C -->|Pruning| G
+
+
+Il Ciclo di Deception Adattiva
+
+Il sistema implementa un meccanismo di Branching & Pruning:
+
+Per ogni comando eseguito $C_t$, il modello predice $k$ possibili comandi futuri ($C_{t+1}^1, ..., C_{t+1}^k$).
+
+Il Defender genera $k$ rami di deception (es. crea file falsi per ogni previsione).
+
+Quando l'attaccante esegue effettivamente $C_{t+1}$, il sistema identifica il ramo corretto.
+
+Pruning: Gli artefatti dei rami errati vengono eliminati istantaneamente per mantenere la coerenza ambientale.
+
+🧩 Componenti Core
+
+1. FakeShell (Honeypot/roles/fakeshell)
+
+Script Python che emula un terminale /bin/bash ad alta interazione.
+
+Funzionalità: Gestione PTY, supporto pipe/redirezioni, prompt dinamico (user@hostname:cwd$).
+
+Output: Logging strutturato in /var/log/fakeshell.json contenente timestamp, IP, utente, CWD e comando raw.
+
+2. Predictive Engine (prompting/)
+
+Modulo responsabile dell'inferenza. Supporta due modalità:
+
+CodeLlama (Locale): Via Ollama API. Ideale per ambienti air-gapped.
+
+Gemini 1.5 Flash (Cloud): Via Google GenAI API. Prestazioni superiori in reasoning complesso.
+
+RAG Integration: Utilizza sentence-transformers (all-MiniLM-L6-v2) per convertire le sessioni in embeddings e ricercarle su ChromaDB.
+
+3. Defender Runtime (Honeypot/roles/defender)
+
+Demone di controllo che agisce come "Dungeon Master".
+
+Monitora il log della FakeShell in tailing (tail -f).
+
+Gestisce la logica di materialize_defense_artifacts (scrittura file) e cleanup_other_branches (pulizia).
+
+📂 Struttura del Repository
+
 Predictive_deception/
+├── chroma_storage/             # Storage persistente per il Vector DB (SQLite3)
+│   └── chroma.sqlite3          # Contiene gli embeddings delle sessioni Cowrie
 │
-├── chroma_storage/             # Database vettoriale persistente (ChromaDB)
-│   ├── chroma.sqlite3
-│   └── DB_checkpoint.txt
-│
-├── Honeypot/                   # Infrastructure as Code (Vagrant + Ansible)
-│   ├── Vagrantfile             # Definizione VM
-│   ├── playbook.yml            # Configurazione ruoli Ansible
-│   ├── roles/
-│   │   ├── defender/           # Logica di deception (Runtime + LLM integration)
-│   │   │   └── files/defender.py
-│   │   ├── fakeshell/          # Shell emulata con logging JSON
-│   │   │   └── files/fakeshell.py
-│   │   └── db_vettoriale/      # Setup storage vettoriale
+├── Honeypot/                   # Infrastructure as Code (IaC)
+│   ├── Vagrantfile             # Definizione VM (Network, Risorse)
+│   ├── playbook.yml            # Playbook Ansible per il provisioning
+│   └── roles/
+│       ├── defender/           # Logica Runtime e Deception
+│       ├── fakeshell/          # Emulatore Shell e Logging
+│       └── db_vettoriale/      # Setup dipendenze RAG sulla VM
 │
 ├── inspectDataset/             # Pipeline ETL (Extract, Transform, Load)
-│   ├── download_zenodo.py      # Download dataset CyberLab/Cowrie
-│   ├── analyze_and_clean.py    # Normalizzazione comandi e pulizia rumore
-│   └── merge_cowrie_datasets.py# Aggregazione Train/Test split
+│   ├── download_zenodo.py      # Downloader automatico dataset CyberLab
+│   ├── analyze_and_clean.py    # Parsing, normalizzazione regex e pulizia
+│   └── merge_cowrie_datasets.py# Aggregazione e split Train/Test
 │
-├── prompting/                  # Modulo di Inferenza e Valutazione
-│   ├── core_rag.py             # Logica RAG e context retrieval
-│   ├── core_topk.py            # Logica di prompting standard
-│   ├── evaluate_gemini_rag.py  # Benchmark Gemini + RAG
-│   ├── evaluate_ollama_rag.py  # Benchmark CodeLlama + RAG
-│   └── utils.py                # Funzioni di utilità condivise
+├── prompting/                  # Core Logico LLM + RAG
+│   ├── core_rag.py             # Indicizzazione e Retrieval (ChromaDB)
+│   ├── core_topk.py            # Logica di prompting standard (Zero-shot)
+│   ├── evaluate_gemini_*.py    # Script di benchmark per Gemini
+│   ├── evaluate_ollama_*.py    # Script di benchmark per CodeLlama
+│   └── utils.py                # Funzioni di supporto (parsing output)
 │
-└── requirements.txt
+└── requirements.txt            # Dipendenze Python
+
+
+🛠️ Setup e Installazione
+
+Prerequisiti
+
+Host: Linux/macOS (consigliato) o Windows WSL2.
+
+Software: Python 3.10+, Vagrant, VirtualBox, Ansible.
+
+Hardware: * Consigliata GPU NVIDIA per RAG veloce (se eseguito localmente).
+
+Minimo 8GB RAM per la VM Honeypot.
+
+1. Installazione Dipendenze
+
+Creare un virtual environment e installare le librerie necessarie:
+
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+
+2. Configurazione Variabili d'Ambiente
+
+Creare un file .env nella root del progetto:
+
+GOOGLE_API_KEY="la_tua_chiave_gemini"
+OLLAMA_BASE_URL="http://localhost:11434" # Se si usa CodeLlama
+
+
+🔄 Workflow Operativo
+
+Il ciclo di vita del progetto si divide in 4 fasi distinte.
+
+Fase 1: Acquisizione e Pulizia Dati
+
+Scaricamento e normalizzazione dei log di attacco reali (dataset Cowrie da Zenodo).
+
+# Scarica i log grezzi
+python3 inspectDataset/download_zenodo.py --n 50
+
+# Pulisce, normalizza i comandi e crea dataset TRAIN/TEST
+python3 inspectDataset/merge_cowrie_datasets.py
+
+
+Fase 2: Creazione Knowledge Base (RAG)
+
+Indicizzazione vettoriale del dataset di training per abilitare il retrieval.
+
+# Genera embeddings e popola ChromaDB
+python3 prompting/core_rag.py \
+  --index \
+  --dataset output/cowrie_TRAIN.jsonl \
+  --persist-dir chroma_storage/
+
+
+Fase 3: Valutazione Modelli (Benchmark)
+
+Prima del deployment, valutare l'accuratezza predittiva.
+
+# Esempio: Valutazione CodeLlama con RAG su dataset di test
+python3 prompting/evaluate_ollama_rag.py \
+  --sessions output/cowrie_TEST.jsonl \
+  --index-file output/cowrie_TRAIN.jsonl \
+  --k 5 --rag-k 3
+
+
+Fase 4: Deployment Honeypot
+
+Avvio dell'ambiente di produzione simulato.
+
+cd Honeypot
+
+# 1. Provisioning della VM (richiede ~10 min al primo avvio)
+vagrant up --provision
+
+# 2. Accesso (Simulazione Attaccante)
+ssh -p 2222 user@127.0.0.1
