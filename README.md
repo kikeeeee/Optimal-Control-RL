@@ -60,5 +60,4 @@ graph TD
     C -->|Generate Artifacts| G[Filesystem Injection]
     G -->|Interaction| A
     C -->|Pruning| G
----
 
