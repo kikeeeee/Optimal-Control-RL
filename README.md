@@ -13,13 +13,12 @@ Il progetto introduce un cambio di paradigma nella gestione degli honeypot SSH: 
 ## 📑 Indice
 
 1. [Abstract](#-abstract)
-2. [Architettura del Sistema](#-architettura-del-sistema)
-3. [Componenti Core](#-componenti-core)
+2. [Core Concept](#-core-concept
+3. [Architettura del Sistema](#-architettura-del-sistema)
 4. [Struttura del Repository](#-struttura-del-repository)
 5. [Setup e Installazione](#-setup-e-installazione)
 6. [Workflow Operativo](#-workflow-operativo)
-7. [Risultati Sperimentali](#-risultati-sperimentali)
-8. [Autori e Riferimenti](#-autori-e-riferimenti)
+7. [Autori e Riferimenti](#-autori-e-riferimenti)
 
 ---
 
