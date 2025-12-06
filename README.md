@@ -22,7 +22,7 @@ Il progetto introduce un cambio di paradigma nella gestione degli honeypot SSH: 
 
 ---
 
-## 🔬 Abstract
+##  Abstract
 
 Gli honeypot tradizionali (es. Cowrie) raccolgono intelligence registrando le azioni degli attaccanti *post-factum*. Questo approccio limita le capacità di inganno (deception) in tempo reale.
 **Predictive Deception** supera questo limite implementando un ciclo OODA (Observe-Orient-Decide-Act) automatizzato:
@@ -30,10 +30,20 @@ Gli honeypot tradizionali (es. Cowrie) raccolgono intelligence registrando le az
 2.  **Orient:** Recupera contesti storici simili da un database vettoriale (RAG).
 3.  **Decide:** Predice la sequenza di prossimi comandi ($Top\text{-}k$) tramite LLM.
 4.  **Act:** Genera e materializza artefatti "esca" (file, log, config) nel filesystem prima che l'attaccante li richieda.
-
 ---
 
-## 🏗️ Architettura del Sistema
+## Core Concept
+Il cuore del progetto è la transizione da una difesa passiva a una **difesa proattiva e adattiva**.
+
+Gli honeypot tradizionali (es. Cowrie) si limitano a registrare i comandi dopo che sono stati eseguiti e spesso presentano un ambiente statico facilmente identificabile. Il nostro sistema di **Predictive Deception** inverte questo approccio:
+
+1.  **Anticipazione in Tempo Reale:** Un modulo predittivo basato su LLM analizza la sequenza di comandi dell'attaccante mentre la sessione è in corso.
+2.  **Memoria Storica (RAG):** Utilizzando la *Retrieval-Augmented Generation*, il modello consulta un database vettoriale (ChromaDB) contenente migliaia di sessioni di attacco reali (dataset CyberLab Honeynet) per migliorare la precisione della predizione.
+3.  **Generazione Dinamica di Artefatti:** Prima ancora che l'attaccante prema invio sul prossimo comando, il sistema "immagina" cosa potrebbe chiedere (es. un file di configurazione, una password, una directory specifica) e **crea l'artefatto ingannevole nel filesystem reale**.
+4.  **Coerenza Temporale:** Se l'attaccante interagisce con l'artefatto, questo rimane persistente; se la predizione era errata o il percorso cambia, il sistema ripulisce le "false piste" per mantenere l'ambiente coerente e credibile.
+---
+
+##  Architettura del Sistema
 
 Il sistema opera all'interno di un ambiente virtualizzato (Vagrant) isolato, orchestrato via Ansible.
 
