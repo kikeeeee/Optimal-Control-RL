@@ -129,7 +129,6 @@ Predictive_deception/
 | 1️⃣2️⃣ | `Honeypot/roles/defender/files/defender.py`                 | Versione deployabile del Defender: segue il log della fake shell, usa RAG+Gemini per predire i prossimi comandi e crea artefatti di deception nel filesystem della VM. |
 
 ## Autori
-## 👥 Autori
 
 | | | |
 |:--:|:--:|:--:|
