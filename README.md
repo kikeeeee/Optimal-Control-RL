@@ -109,3 +109,22 @@ Predictive_deception/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
+```
+
+## Workflow Operativo
+
+| Step | Script / File                                                | Descrizione |
+|------|--------------------------------------------------------------|-------------|
+| 1️⃣  | `inspectDataset/download_zenodo.py`                          | Scarica automaticamente i dataset Cowrie da Zenodo e li salva nella cartella `data/` per l’analisi successiva. |
+| 2️⃣  | `inspectDataset/analyze_and_clean.py`                        | Analizza i log Cowrie, normalizza i comandi, rimuove rumore/duplicati e genera versioni RAW/CLEAN in formato JSONL con statistiche. |
+| 3️⃣  | `inspectDataset/merge_cowrie_datasets.py`                    | Unisce più file puliti in un unico dataset e produce lo split train/test (es. `cowrie_TRAIN.jsonl`, `cowrie_TEST.jsonl`) per gli esperimenti. |
+| 4️⃣  | `prompting/core_rag.py`                                      | Implementa il motore RAG: crea/usa il database vettoriale in `chroma_storage/` e fornisce funzioni di retrieval contestuale per le predizioni. |
+| 5️⃣  | `prompting/core_topk.py`                                     | Fornisce la logica generica di predizione Top-k (senza RAG), riutilizzabile da Gemini e modelli locali. |
+| 6️⃣  | `prompting/evaluate_gemini_topk.py`                          | Valuta il modello Gemini in modalità Top-k pura, calcolando accuratezza Top-1/Top-5 sulle sessioni di test. |
+| 7️⃣  | `prompting/evaluate_gemini_rag.py`                           | Valuta Gemini integrato con RAG (ChromaDB), usando contesto + retrieval per migliorare la predizione del prossimo comando. |
+| 8️⃣  | `prompting/evaluate_ollama_topk.py`                          | Esegue test su modelli locali (es. CodeLlama via Ollama) in modalità Top-k senza RAG, per confrontarli con Gemini. |
+| 9️⃣  | `prompting/evaluate_ollama_rag.py`                           | Valuta modelli locali integrati con RAG, combinando vector search + LLM per la next-command prediction. |
+| 🔟  | `Honeypot/Vagrantfile` + `Honeypot/playbook.yml`              | Definisce e configura l’ambiente honeypot tramite Vagrant + Ansible (VM, utenti, Python, log, ruoli Ansible, ecc.). |
+| 1️⃣1️⃣ | `Honeypot/roles/fakeshell/files/fakeshell.py`             | Implementa una fake shell avanzata nella VM: prompt realistico, esecuzione comandi e logging di ogni comando in `/var/log/fakeshell.json`. |
+| 1️⃣2️⃣ | `Honeypot/roles/defender/files/defender.py`                 | Versione deployabile del Defender: segue il log della fake shell, usa RAG+Gemini per predire i prossimi comandi e crea artefatti di deception nel filesystem della VM. |
+
