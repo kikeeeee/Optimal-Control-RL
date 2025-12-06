@@ -60,4 +60,52 @@ graph TD
     C -->|Generate Artifacts| G[Filesystem Injection]
     G -->|Interaction| A
     C -->|Pruning| G
+```
 
+### Struttura del Repository
+```bash
+Predictive_deception/
+│
+├── chroma_storage/                     # Database vettoriale ChromaDB
+│   ├── chroma.sqlite3
+│   └── DB_checkpoint.txt
+│
+├── Honeypot/                           # Ambiente honeypot (Vagrant + Ansible)
+│   ├── Vagrantfile
+│   ├── playbook.yml
+│   ├── readme.txt
+│   └── roles/
+│       ├── db_vettoriale/
+│       │   └── tasks/
+│       ├── defender/
+│       │   ├── files/
+│       │   │   └── defender.py
+│       │   ├── tasks/
+│       │   └── vars/
+│       ├── env_python/
+│       │   ├── tasks/
+│       │   └── vars/
+│       └── fakeshell/
+│           ├── files/
+│           │   ├── fakeshell.py
+│           │   └── fakeshell_easy.py
+│           ├── handlers/
+│           └── tasks/
+│
+├── inspectDataset/                     # Analisi e pulizia dataset Cowrie
+│   ├── analyze_and_clean.py
+│   ├── download_zenodo.py
+│   └── merge_cowrie_datasets.py
+│
+├── prompting/                          # Motore predittivo LLM
+│   ├── core_rag.py
+│   ├── core_topk.py
+│   ├── evaluate_gemini_rag.py
+│   ├── evaluate_gemini_topk.py
+│   ├── evaluate_ollama_rag.py
+│   ├── evaluate_ollama_topk.py
+│   └── utils.py
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
