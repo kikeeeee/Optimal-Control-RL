@@ -18,7 +18,7 @@ Il progetto introduce un cambio di paradigma nella gestione degli honeypot SSH: 
 4. [Struttura del Repository](#-struttura-del-repository)
 5. [Setup e Installazione](#-setup-e-installazione)
 6. [Workflow Operativo](#-workflow-operativo)
-7. [Autori e Riferimenti](#-autori-e-riferimenti)
+7. [Autori](#-autori)
 
 ---
 
@@ -128,3 +128,18 @@ Predictive_deception/
 | 1️⃣1️⃣ | `Honeypot/roles/fakeshell/files/fakeshell.py`             | Implementa una fake shell avanzata nella VM: prompt realistico, esecuzione comandi e logging di ogni comando in `/var/log/fakeshell.json`. |
 | 1️⃣2️⃣ | `Honeypot/roles/defender/files/defender.py`                 | Versione deployabile del Defender: segue il log della fake shell, usa RAG+Gemini per predire i prossimi comandi e crea artefatti di deception nel filesystem della VM. |
 
+## Autori
+## 👥 Autori
+
+| | | |
+|:--:|:--:|:--:|
+| <a href="https://github.com/BlackRaffo70"><img src="https://github.com/BlackRaffo70.png" width="110" alt="avatar Raffaele Neri"></a> | <a href="https://github.com/melomatte"><img src="https://github.com/melomatte.png" width="110" alt="avatar Matteo Melotti"></a> | <a href="https://github.com/kikeeeee"><img src="https://github.com/kikeeeee.png" width="110" alt="avatar Enrico Borsetti"></a> |
+| **Raffaele Neri**<br/>[@BlackRaffo70](https://github.com/BlackRaffo70) | **Matteo Melotti**<br/>[@melottimatteo](https://github.com/melomatte) | **Enrico Borsetti**<br/>[@enricoborsetti](https://github.com/kikeeeee) |
+
+---
+
+📘 *Progetto di ricerca:*  
+**🍯 Predictive Deception – LLM-based Command Anticipation in SSH Honeypots**  
+Università di Bologna – Corso di Laurea Magistrale in Ingegneria Informatica  
+
+👨‍🏫 *Docente referente:* **Prof. Michele Colajanni**
